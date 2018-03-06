@@ -1,4 +1,4 @@
-import task
+import functions
 
 
 class Game:
@@ -17,7 +17,7 @@ class Game:
         pass
 
     def field_with_ships(self, index):
-        return task.field_to_str(self.__field[index-1]._Field__ships)
+        return functions.field_to_str(self.__field[index-1]._Field__ships)
 
 
 class Player:
@@ -32,7 +32,7 @@ class Player:
 
 class Field:
     def __init__(self):
-        self.__ships = task.field_generate()
+        self.__ships = functions.field_generate()
 
     def shoot_at(self, tuple1):
         pass
