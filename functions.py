@@ -1,4 +1,3 @@
-import pprint
 import string
 import random
 
@@ -42,61 +41,48 @@ def is_valid(data):
 def field_generate():
     list_of_ships = (4, 3, 3, 2, 2, 2, 1, 1, 1, 1)
     field = [[" " for i in range(10)]for j in range(10)]
-    list_of_coordinates = ((i, j) for j in range(10) for i in range(10))
-    print(list_of_coordinates)
+    list_of_coordinates = [(i, j) for j in range(10) for i in range(10)]
     lst = ['']
-    list_around = ['']
-    for ship in list_of_ships:
-        while set(lst) & set(list_around):
+    list_of_data = []
+    for k in range(10):
+        ship = list_of_ships[k]
+        list_ship = ['']
+        while True:
             try:
                 list_around = []
                 a = random.choice(["horizontal", "vertical"])
-                int_coord = random.choice(list(set(list_of_coordinates)-set(lst)))
-                # int_coord[0] - row, int_coord[1] - column
+                int_coord = random.choice(list(set(list_of_coordinates) - set(lst)))
+                coord = (chr(int_coord[1]+ord('a')),int_coord[0]+1)
 
                 if a == "horizontal":
+                    assert int_coord[1] + ship - 1 < 10
+                    list_ship = [(int_coord[0], i) for i in range(int_coord[1], int_coord[1] + ship)]
+                    assert not set(list_ship) & set(lst)
                     for i in range(int_coord[0] - 1, int_coord[0] + 2):
                         for j in range(int_coord[1] - 1, int_coord[1] + ship + 1):
-                            list_around += (i, j)
+                            list_around.append((i, j))
+
                 if a == "vertical":
+                    assert int_coord[0] + ship - 1 < 10
+                    list_ship = [(i, int_coord[1]) for i in range(int_coord[0], int_coord[0] + ship)]
+                    assert not set(list_ship) & set(lst)
                     for i in range(int_coord[0] - 1, int_coord[0] + ship + 1):
                         for j in range(int_coord[1] - 1, int_coord[1] + 2):
-                            list_around += (i, j)
+                            list_around.append((i, j))
 
-                if a == "horizontal":
-                    for i in range(int_coord[0], int_coord[0] + ship):
-                        field[i][int_coord[1]] = "*"
+                list_around = list(filter(lambda x: x[0] > -1 and x[1] > -1, list_around))
 
-                if a == "vertical":
-                    for i in range(int_coord[1], int_coord[1] + ship):
-                        field[int_coord[0]][i] = "*"
+                for i in list_ship:
+                    if i in lst:
+                        continue
+                    field[i[0]][i[1]] = "*"
 
                 lst.extend(list_around)
-            except IndexError:
-                pass
-                # list_around = ['']
-
-
-
-#        coord_l, coord_num = ord(coord[0])-ord('a'), coord[1]-1
-#        try:
-#           if not has_ship(field, coord):
-#                if a == "horizontal":
-#                    lst1 = [coord1]
-#                    for i in range(coord_l, coord_l+list_of_ships[k]):
-#                        assert 0 <= i <= 9
-#                        assert field[i][coord_num] == " "
-#                        field[i][coord_num] = "*"
-#                else:
-#                    for i in range(coord_num, coord_num+list_of_ships[k]):
-#                        assert 0 <= i <= 9
-#                        assert field[coord_l][i] == " "
-#                        field[coord_l][i] = "*"
-#            else:
-#                k -= 1
-#        except AssertionError or IndexError:
-#            k -= 1
-    return field
+                list_of_data.append((int_coord, a, list_of_ships[k]))
+                break
+            except (IndexError, AssertionError):
+                continue
+    return field, list_of_data
 
 
 def field_to_str(data):
@@ -106,9 +92,6 @@ def field_to_str(data):
     return str1
 
 
-if __name__ == "__main__":
-    a = read_data('file.txt')
-    print(has_ship(a, ('a', 2)))
-    print(ship_size(a, ('c', 1)))
-    b = field_generate()
-    print(field_to_str(b))
+field, list_of_data = field_generate()
+print(field_to_str(field))
+print(list_of_data)
