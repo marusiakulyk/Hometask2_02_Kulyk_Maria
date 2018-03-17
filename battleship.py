@@ -9,11 +9,11 @@ class Ship:
         self.hit = [(i, j, False) for j in range(self.bow[1], self.bow[1]+self.length[1])
                     for i in range(self.bow[0], self.bow[0]+self.length[0])]
 
-    def shoot_at(self, tupple):
-        tuple1 = tupple + (False,)
+    def shoot_at(self, tuple_):
+        tuple1 = tuple_ + (False,)
         for i, tuple2 in enumerate(self.hit):
             if tuple2 == tuple1:
-                self.hit[i] = tupple + (True,)
+                self.hit[i] = tuple_ + (True,)
 
 
 class Field:
@@ -27,15 +27,26 @@ class Field:
                 self.__ships[coord[0]][coord[1]] = ship1
 
     def shoot_at(self, tuple1):
+        a = self.__ships[tuple1[0]][tuple1[1]]
         if self.__ships[tuple1[0]][tuple1[1]] is None:
             self.__ships[tuple1[0]][tuple1[1]] = "shooted"
         elif type(self.__ships[tuple1[0]][tuple1[1]]) == Ship:
             Ship.shoot_at(self.__ships[tuple1[0]][tuple1[1]], tuple1)
+            for i in self.__ships[tuple1[0]][tuple1[1]].hit:
+                if i[2] == False:
+                    break
+            else:
+                for i in range(a.bow[0] - 1, a.bow[0] + a.length[0] + 1):
+                    for j in range(a.bow[1] - 1, a.bow[1] + a.length[1] + 1):
+                        if (i, j, True) not in a.hit and (0 <= i <= 10) \
+                                and (0 <= j <= 10):
+                            self.__ships[i][j] = "shooted"
+
 
     def field_without_ships(self):
-        str1 = "  A B C D E F G H I J\n"
+        str1 = "   A B C D E F G H I J\n"
         for i, data in enumerate(self.__ships):
-            str1 += str(i+1)
+            str1 += '%+2s' % str(i+1)
             for j, sym in enumerate(data):
                 if sym == "shooted":
                     a = '*'
