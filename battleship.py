@@ -1,23 +1,54 @@
 import functions
 
 
-class Game:
-    iterat = 0
+class Ship:
+    def __init__(self, bow, horizontal, length):
+        self.bow = bow
+        self.horizontal = horizontal
+        self.length = length
+        self.hit = [(i, j, False) for j in range(self.bow[1], self.bow[1]+self.length[1])
+                    for i in range(self.bow[0], self.bow[0]+self.length[0])]
 
-    def __init__(self, field, players):
-        self.__field = field
-        self.__players = players
-        self.iterat += 1
-        self.__current_player = self.__players[self.iterat % 2]
+    def shoot_at(self, tupple):
+        tuple1 = tupple + (False,)
+        for i, tuple2 in enumerate(self.hit):
+            if tuple2 == tuple1:
+                self.hit[i] = tupple + (True,)
 
-    def shoot_at(self, index, tuple1):
-        pass
 
-    def field_without_ships(self, index):
-        pass
+class Field:
 
-    def field_with_ships(self, index):
-        return functions.field_to_str(self.__field[index-1]._Field__ships)
+    def __init__(self):
+        self.__ships = [[None for i in range(10)]for j in range(10)]
+        self.field, field_data = functions.field_generate()
+        for ship in field_data:
+            ship1 = Ship(ship[0], ship[1], ship[2])
+            for coord in ship1.hit:
+                self.__ships[coord[0]][coord[1]] = ship1
+
+    def shoot_at(self, tuple1):
+        if self.__ships[tuple1[0]][tuple1[1]] is None:
+            self.__ships[tuple1[0]][tuple1[1]] = "shooted"
+        elif type(self.__ships[tuple1[0]][tuple1[1]]) == Ship:
+            Ship.shoot_at(self.__ships[tuple1[0]][tuple1[1]], tuple1)
+
+    def field_without_ships(self):
+        str1 = "  A B C D E F G H I J\n"
+        for i, data in enumerate(self.__ships):
+            str1 += str(i+1)
+            for j, sym in enumerate(data):
+                if sym == "shooted":
+                    a = '*'
+                elif type(sym) == Ship and (i, j, True) in sym.hit:
+                    a = "x"
+                else:
+                    a = " "
+                str1 += " " + a
+            str1 += '\n'
+        return str1
+
+    def field_with_ships(self):
+        return self.__ships
 
 
 class Player:
@@ -25,31 +56,34 @@ class Player:
         self.__name = name
 
     def read_position(self):
-        x = tuple(input("Player {}, enter move"
-                           .format(self.__name)).lower())
-        return x
+        x = str(input("Player {}, enter move"
+                      .format(self.__name)).lower())
+        x2 = ord(x[0]) - ord('a')
+        x1 = int(x[1:])-1
+        return tuple([x1, x2])
 
 
-class Field:
-    def __init__(self):
-        self.__ships = functions.field_generate()
-
-    def shoot_at(self, tuple1):
-        pass
-
-    def field_without_ships(self):
-        pass
-
-    def with_ships(self):
-        return self.__ships
+last_iterat = 0
 
 
-class Ship:
-    def __init__(self, bow, horizontal, length, hit):
-        pass
+class Game:
+    def __init__(self, fields, players):
+        global last_iterat
+        last_iterat += 1
+        self.fields = fields
+        self.players = players
+        self.iterat = last_iterat
+        self.current_player = self.players[self.iterat % 2]
 
-    def shoot_at(self):
-        pass
+    def read_position(self):
+        return self.current_player.read_position()
+
+    def field_without_ships(self, index):
+        a = self.fields[index-1].field_without_ships()
+        return a
+
+    def field_with_ships(self, index):
+        return self.fields[index-1].field_with_ships()
 
 
 field1 = Field()
@@ -57,8 +91,10 @@ field2 = Field()
 player1 = Player(1)
 player2 = Player(2)
 game = Game([field1, field2], [player1, player2])
-print(game.field_with_ships(1))
+print(functions.field_to_str(field1.field))
+print(functions.field_to_str(field2.field))
 while True:
     for i in range(2):
-        a = game._Game__players[i].read_position()
-        print(game._Game__fields[i].field_without_ships())
+        a = game.players[i].read_position()
+        game.fields[i-1].shoot_at(a)
+        print(game.field_without_ships(i))
