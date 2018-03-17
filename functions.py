@@ -53,6 +53,7 @@ def field_generate():
                 a = random.choice(["horizontal", "vertical"])
                 int_coord = random.choice(list(set(list_of_coordinates) - set(lst)))
                 coord = (chr(int_coord[1]+ord('a')),int_coord[0]+1)
+                length = (0, 0)
 
                 if a == "horizontal":
                     assert int_coord[1] + ship - 1 < 10
@@ -61,6 +62,8 @@ def field_generate():
                     for i in range(int_coord[0] - 1, int_coord[0] + 2):
                         for j in range(int_coord[1] - 1, int_coord[1] + ship + 1):
                             list_around.append((i, j))
+                    length = (1, ship)
+                    a = True
 
                 if a == "vertical":
                     assert int_coord[0] + ship - 1 < 10
@@ -69,7 +72,8 @@ def field_generate():
                     for i in range(int_coord[0] - 1, int_coord[0] + ship + 1):
                         for j in range(int_coord[1] - 1, int_coord[1] + 2):
                             list_around.append((i, j))
-
+                    length = (ship, 1)
+                    a = False
                 list_around = list(filter(lambda x: x[0] > -1 and x[1] > -1, list_around))
 
                 for i in list_ship:
@@ -78,7 +82,7 @@ def field_generate():
                     field[i[0]][i[1]] = "*"
 
                 lst.extend(list_around)
-                list_of_data.append((int_coord, a, list_of_ships[k]))
+                list_of_data.append((int_coord, a, length))
                 break
             except (IndexError, AssertionError):
                 continue
@@ -92,6 +96,7 @@ def field_to_str(data):
     return str1
 
 
-field, list_of_data = field_generate()
-print(field_to_str(field))
-print(list_of_data)
+if __name__ == "__main__":
+    field, list_of_data = field_generate()
+    print(field_to_str(field))
+    print(list_of_data)
