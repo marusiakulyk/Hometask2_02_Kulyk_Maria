@@ -102,8 +102,6 @@ field2 = Field()
 player1 = Player(1)
 player2 = Player(2)
 game = Game([field1, field2], [player1, player2])
-print(functions.field_to_str(field1.field))
-print(functions.field_to_str(field2.field))
 while True:
     for i in range(2):
         a = game.players[i].read_position()
